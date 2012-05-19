@@ -1,6 +1,6 @@
-# jQuery Foursquare Suggest Plugin
+# jQuery Foursquare Suggest Completion Plugin
 
-###A simple way to get Foursquare Venues Suggestion Completion into your site's html input field. Type something in the input field (like "ham", "hambur", or "hamburger") and get a list of matching Foursquare Venues (in this case Minivenues). 
+A simple way to get Foursquare Venues Suggestion Completion into your site's html input fields. Type something in the input field (like "ham", "hambur", or "hamburger") and get a list of matching Foursquare Venues (in this case, Minivenues). For more information on Foursquare Suggest Completion, go [here](https://developer.foursquare.com/docs/venues/suggestcompletion "Foursquare Suggest Completion")
 
 ![alt text](http://www.flickr.com/photos/kurtyboy/7225529098/ "Hamburger Search")
 
