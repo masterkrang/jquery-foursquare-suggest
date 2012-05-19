@@ -2,8 +2,8 @@
 	
 	//keep track of which results list item is selected
 	//TODO change term to "results list"
-	var resultsSelectedIndex = 0;
-	var resultsSelectionActive = false;
+	var resultsListIndex = 0;
+	var resultsListActive = false;
 	var opts;
 	var lastEntered = "";
 	var data;
@@ -84,27 +84,6 @@
 		//now add up and down listener to toggle and select results
 		
 		resultsList = $("#fs_search_results");
-		
-		/*
-		resultsList.keypress(function() {
-			//see if it's a key up or down
-			
-			//up
-			if (e.keyCode == 38) { 
-			   	console.log( "left pressed" );
-				onArrowKeyPressed(e.keyCode);
-		       	return false;
-		    }
-			
-			//down
-			if (e.keyCode == 40) { 
-			   	console.log( "left pressed" );	
-				onArrowKeyPressed(e.keyCode);
-		       	return false;
-		    }
-			
-		});
-		*/
 	}
 	
 	function callFoursquareSuggestion() {
@@ -137,7 +116,7 @@
 		html = buildResultsList();
 		//add or re-add 
 		//reset selection
-		resultsSelectedIndex = 0;
+		resultsListIndex = 0;
 		resultsList.empty();
 		resultsList.html(html);
 	}
@@ -169,46 +148,65 @@
 		
 		//up
 		if (code == 38) { 
-		   	console.log( "up pressed" );
-			
-			if(resultsSelectionActive) {
-				//get selected index
-				if(resultsSelectedIndex == 0) {
-					//
-					resultsSelectedIndex = 0;
-					resultsSelectionActive = false;
-				} else {
-					setSelected(resultsSelectedIndex - 1);
-				}
-				
-			} //else: they pressed up while cursor focus on input so ignore it
-			
+		   	upArrowPressed();
 	       	return false;
 	    }
 		
 		//down
 		if (code == 40) { 
-		   	console.log( "down pressed" );	
-			if(resultsSelectionActive) {
-				//if active and last item in list
-				if(resultsSelectedIndex == liLength - 1) {
-					//do nothing or return to top?
-					//return to top
-					setSelected(0);
-				} else {
-					setSelected(resultsSelectedIndex + 1);
-				}
-				
-			} else {
-				//activate the list
-				resultsSelectionActive = true;
-				setSelected(0);
-			}
+		   	downArrowPressed();
 			return false;
 	    }
 	}
 	
+	function downArrowPressed() {
+		console.log( "down pressed" );	
+		if(resultsListActive) {
+			console.log("active");
+			//if active and last item in list
+			if(resultsListIndex == liLength - 1) {
+				//do nothing or return to top?
+				//return to top
+				console.log("reached the end");
+				setSelected(0);
+			} else {
+				//console.log("down arrow " + (resultsListSelectedIndex + 1));
+				//console.log("results list selected index " + resultsListSelectedIndex);
+				setSelected(resultsListSelectedIndex + 1);
+			}
+			
+		} else {
+			console.log("not active, activate");
+			//activate the list
+			resultsListActive = true;
+			setSelected(0);
+		}
+	}
+	
+	function upArrowPressed() {
+		console.log( "up pressed" );
+		
+		if(resultsListActive) {
+			//get selected index
+			if(resultsListSelectedIndex == 0) {
+				//
+				deactivateResultsList();
+			} else {
+				setSelected(resultsListSelectedIndex - 1);
+			}
+			
+		} //else: they pressed up while cursor focus on input so ignore it
+	}
+	
+	function deactivateResultsList() {
+		resultsListSelectedIndex = 0;
+		resultsListActive = false;
+		$("#" + resultsList.attr("id") + " li").removeClass("selected");
+	}
+	
 	function setSelected(index) {
+		console.log("set selected: " + index);
+		resultsListSelectedIndex = index;
 		$("#" + resultsList.attr("id") + " li").removeClass("selected");
 		$("#" + resultsList.attr("id") + " li").eq(index).addClass("selected");
 	}
