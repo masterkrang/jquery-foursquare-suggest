@@ -14,7 +14,8 @@ The idea is to create something that is simple and lightweight, with no styling,
 
 * Call the fs_suggest() method as in the following example
 
-	```$("#my_input").fs_suggest({
+	```javascript
+	$("#my_input").fs_suggest({
 		'client_id'		: 'YOUR_CLIENT_ID',
 		'client_secret'	: 'YOUR_CLIENT_SECRET',
 		ll : '37.787920,-122.407458', 
