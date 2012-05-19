@@ -18,8 +18,8 @@ The idea is to create something that is simple and lightweight, with no styling,
 	$("#my_input").fs_suggest({
 		'client_id'		: 'YOUR_CLIENT_ID',
 		'client_secret'	: 'YOUR_CLIENT_SECRET',
-		ll : '37.787920,-122.407458', 
-		limit : 10, 
+		'll' : '37.787920,-122.407458', 
+		'limit' : 10, 
 	});
 	```
 In the above sample, we took an html input element with the id of '_my____input_' and called the fs_suggest() method to activate the plugin. We also passed some parameters into the plugin, 'client_id', 'client_secret', 'll' (latitude, longitude), and 'limit'. See below for an explanation of supported parameters.
