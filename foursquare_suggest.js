@@ -27,9 +27,39 @@
 		
 		opts = $.extend(defaults, options);
 		
+		this.keydown(function(event) {
+			
+			var code = event.keyCode || event.which;
+			
+			if (code == 13) {	//enter key is pressed
+				onEnterKey();
+				//console.log("13 cancelling");
+		    	//event.preventDefault();
+		    	//return false;
+				//event.preventDefault()
+				//return false;
+			}
+		});
+		
 		//TODO make this flexible enough to deal with other key events
+		//wait for keyup to get total entered text
 		this.keyup(function(event) {
 			
+			console.log("key up");
+			var code = event.keyCode || event.which;
+			
+			//enter keys and and arrow keys should be caught by keydown
+			if(code == 13) {
+				//console.log("13 cancelling");
+		    	return false;
+		    }
+		
+			//only listen for up and down
+			if(code == 38 || code == 40) {
+				//onArrowKeyPressed(event.keyCode);
+				return false
+			}
+		
 			//console.log("keyup");
 			//console.log($(this).val());
 			justEntered = $(this).val();
@@ -37,36 +67,40 @@
 			//since foursquare will only return minivenues on 3 characters
 			//check if the value entered is 3 or more characters
 			if(justEntered.length >= 3) {
-				
-				//see if it's an up key or down key
-				if(event.keyCode == 38 || event.keyCode == 40) {
-					//onArrowKeyPressed(event.keyCode);
-					//allow the document.keyup handle this
+			
+				//figure out if it's a character or not
+				var c = String.fromCharCode(code);
+				var isWordcharacter = c.match(/\w/);
+
+				if(isWordcharacter && lastEntered != justEntered) {
+					//send it off to foursquare
+					console.log("call foursquare");
+					callFoursquareSuggestion();
 				} else {
-					//figure out if it's a character or not
-					var c = String.fromCharCode(event.keyCode);
-					var isWordcharacter = c.match(/\w/);
-
-					if(isWordcharacter && lastEntered != justEntered) {
-						//send it off to foursquare
-						callFoursquareSuggestion();
-					} else {
-						//clear what was entered before
-						$("#fs_search_results").empty();
-					}
-
-					lastEntered = justEntered;
+					//clear what was entered before
+					$("#fs_search_results").empty();
 				}
+
+				lastEntered = justEntered;
 			}
-			
-			
-			
 		});
 		
+		
+		
 		//add global keyup on document
-		$(document).keyup(function(event) {
+		$(document).keydown(function(event) {
+			console.log("window key up");
+			var code = event.keyCode || event.which;
+			
+			if(code == 13) {
+				//console.log("13 cancelling");
+				//enterKey();
+		    	event.preventDefault();
+		    	return false;
+		    }
+		
 			//only listen for up and down
-			if(event.keyCode == 38 || event.keyCode == 40) {
+			if(code == 38 || code == 40) {
 				onArrowKeyPressed(event.keyCode);
 			}
 		});
@@ -78,6 +112,17 @@
 		//that way results could be populated to an already existing container
 		addResultsList(this);
 	};
+	
+	function onEnterKey() {
+		//figure out if anything is selected
+		if(resultsListActive) {
+			console.log("resulstListActive true: click " + "#" + resultsList.attr("id") + " .selected a");
+			//there must be a selected item in the list so trigger it's click event
+			
+			window.location = $("#" + resultsList.attr("id") + " .selected a").attr("href");
+			//return false; //stop default
+		}
+	}
 	
 	function addResultsList(el) {
 		el.after("<ul id='fs_search_results'></ul>");
@@ -213,16 +258,3 @@
 	
 	
 })( jQuery );
-
-
-
-/* console.log("fs object instantiated ")
-//this.after("<div id='newdiv'></div>")
-$this = $(this);
-//this.fadeOut();
-
-
-//maintain chainability
-return this;
-*/
-
