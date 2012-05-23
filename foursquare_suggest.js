@@ -27,17 +27,13 @@
 		
 		opts = $.extend(defaults, options);
 		
+		
 		this.keydown(function(event) {
 			
 			var code = event.keyCode || event.which;
 			
 			if (code == 13) {	//enter key is pressed
 				onEnterKey();
-				//console.log("13 cancelling");
-		    	//event.preventDefault();
-		    	//return false;
-				//event.preventDefault()
-				//return false;
 			}
 		});
 		
@@ -88,13 +84,13 @@
 		
 		
 		//add global keyup on document
-		$(document).keydown(function(event) {
+		this.keydown(function(event) {
 			console.log("window key up");
 			var code = event.keyCode || event.which;
 			
 			if(code == 13) {
 				//console.log("13 cancelling");
-				//enterKey();
+				enterKey();
 		    	event.preventDefault();
 		    	return false;
 		    }
