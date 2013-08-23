@@ -13,10 +13,12 @@
 	$.fn.fs_suggest = function(options) {
 		
 		var defaults = {
-			url	: 'https://api.foursquare.com/v2/venues/suggestCompletion?', // i suppose you could change this...
+			url	: 'https://api.foursquare.com/v2/venues/search?', // i suppose you could change this...
 			ll : '37.787920,-122.407458', //default to SF since it's well known
 			v : '20120515', //the date of the foursquare api version
 			limit : 10, //perhaps an option to ignore limits
+			intent: 'browse', //Looking for geo-specific results
+			radius: 80000, //default to foursquare max of 80,000 meters (ll and radius are required with 'browse' intent)
 			client_id : "YOUR_FS_CLIENT_ID", //get this from foursquare.com
 			client_secret : "YOUR_FS_CLIENT_SECRET", //same
 			style_results: true //set to false if the way i control the position of results, you can do it yourse
@@ -134,6 +136,8 @@
 				+ "&ll=" + opts.ll 
 				+ "&v=" + opts.v 
 				+ "&limit=" + opts.limit
+				+ "&intent=" + opts.intent
+				+ "&radius=" + opts.radius
 				+ "&client_id=" + opts.client_id
 				+ "&client_secret=" + opts.client_secret;
 				 
@@ -163,17 +167,17 @@
 	}
 	
 	function buildResultsList() {
-		minivenues = data.response.minivenues;
+		minivenues = data.response.venues;
 
 		if(minivenues && minivenues.length > 0) {
 			results = "";
 			for (var i = 0; i < minivenues.length; i++) {
 				v = minivenues[i]
 				//TODO this should be customizable, at least for urls
-				results += "<li><a href='/places/" + v.id + "'>" + v.name + "</a></li>";
+				results += "<li class=\"venue-name\"><a name='" + escape(v.name) + "'>" + v.name + "</a>- <span class='addr'>"+ v.location.address +", "+ v.location.city +"</span><span class='hidden'>"+ v.location.state +", "+ v.location.postalCode +"</span><span class='hidden'>"+ v.location.lat +","+ v.location.lng +"</span></li>";
 			}
 		} else {
-			results = "<ul><li>no results</li></ul>";
+			results = "<ul><li>Couldn't find that venue.</li></ul>";
 		}
 		
 		return results;
