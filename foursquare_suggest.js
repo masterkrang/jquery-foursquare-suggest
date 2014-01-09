@@ -13,7 +13,7 @@
 	$.fn.fs_suggest = function(options) {
 		
 		var defaults = {
-			url	: 'https://api.foursquare.com/v2/venues/search?', // i suppose you could change this...
+			url	: 'https://api.foursquare.com/v2/venues/suggestcompletion?', // i suppose you could change this...
 			ll : '37.787920,-122.407458', //default to SF since it's well known
 			v : '20120515', //the date of the foursquare api version
 			limit : 10, //perhaps an option to ignore limits
@@ -141,15 +141,15 @@
 				+ "&radius=" + opts.radius
 				+ "&client_id=" + opts.client_id
 				+ "&client_secret=" + opts.client_secret;
-		$.getJSON(url, function() { 
+		safe_url = encodeURI(url);
+		$.getJSON(safe_url, function() { 
 			//console.log("get search results ajax called");
 		})
 		.success(function(_data, status, xhr) {
 			//console.log("success");
 	        //console.log(_data);
 			data = _data;
-			
-			if((data.response.venues && (data.response.venues.length > 0)) || fallback == true) {
+			if((data.response.minivenues && (data.response.minivenues.length > 0)) || fallback == true) {
 				//if we have results OR this is the 2nd attempt, show results
 				showResults();
 			} else {
@@ -176,14 +176,14 @@
 	}
 	
 	function buildResultsList() {
-		minivenues = data.response.venues;
-
+		minivenues = data.response.minivenues;
+		
 		if(minivenues && minivenues.length > 0) {
 			results = "";
 			for (var i = 0; i < minivenues.length; i++) {
 				v = minivenues[i]
 				//TODO this should be customizable, at least for urls
-				results += "<li class='venue'><a name='" + escape(v.name) + "' data-city='" + v.location.city +"' data-state='" + v.location.state +"' data-address='" + v.location.address +"' data-zip='" + v.location.postalCode +"' data-lat='" + v.location.lat +"' data-lng='" + v.location.lng +"' data-id='" + v.id +"'>" + v.name + "</a>- <span class='loc'>"+ v.location.city +", "+ v.location.state +"</span></li>";
+				results += "<li class='venue'><a name='" + escape(v.name) + "' data-city='" + v.location.city +"' data-state='" + v.location.state +"' data-address='" + v.location.address +"' data-zip='" + v.location.postalCode +"' data-country='" + v.location.country + "' data-lat='" + v.location.lat +"' data-lng='" + v.location.lng +"' data-id='" + v.id +"'>" + v.name + "</a>- <span class='loc'>"+ v.location.city +", "+ v.location.state +"</span></li>";
 			}
 		} else {
 			results = "<ul><li>Couldn't find that venue.</li></ul>";
