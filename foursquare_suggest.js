@@ -13,10 +13,12 @@
 	$.fn.fs_suggest = function(options) {
 		
 		var defaults = {
-			url	: 'https://api.foursquare.com/v2/venues/suggestCompletion?', // i suppose you could change this...
+			url	: 'https://api.foursquare.com/v2/venues/suggestcompletion?', // i suppose you could change this...
 			ll : '37.787920,-122.407458', //default to SF since it's well known
 			v : '20120515', //the date of the foursquare api version
 			limit : 10, //perhaps an option to ignore limits
+			intent: 'browse', //Looking for geo-specific results
+			radius: 80000, //default to foursquare max of 80,000 meters (ll and radius are required with 'browse' intent)
 			client_id : "YOUR_FS_CLIENT_ID", //get this from foursquare.com
 			client_secret : "YOUR_FS_CLIENT_SECRET", //same
 			style_results: true //set to false if the way i control the position of results, you can do it yourse
@@ -41,7 +43,7 @@
 		//wait for keyup to get total entered text
 		this.keyup(function(event) {
 			
-			console.log("key up");
+			//("key up");
 			var code = event.keyCode || event.which;
 			
 			//enter keys and and arrow keys should be caught by keydown
@@ -85,7 +87,7 @@
 		
 		//add global keyup on document
 		this.keydown(function(event) {
-			console.log("window key up");
+			//console.log("window key up");
 			var code = event.keyCode || event.which;
 			
 			if(code == 13) {
@@ -112,7 +114,7 @@
 	function onEnterKey() {
 		//figure out if anything is selected
 		if(resultsListActive) {
-			console.log("resulstListActive true: click " + "#" + resultsList.attr("id") + " .selected a");
+			//console.log("resulstListActive true: click " + "#" + resultsList.attr("id") + " .selected a");
 			//there must be a selected item in the list so trigger it's click event
 			
 			window.location = $("#" + resultsList.attr("id") + " .selected a").attr("href");
@@ -127,6 +129,7 @@
 		resultsList = $("#fs_search_results");
 	}
 	
+	var fallback = false;
 	function callFoursquareSuggestion() {
 		//TODO check for options and set up some error checking
 		url = opts.url 
@@ -134,17 +137,27 @@
 				+ "&ll=" + opts.ll 
 				+ "&v=" + opts.v 
 				+ "&limit=" + opts.limit
+				+ "&intent=" + opts.intent
+				+ "&radius=" + opts.radius
 				+ "&client_id=" + opts.client_id
 				+ "&client_secret=" + opts.client_secret;
-				 
-		$.getJSON(url, function() { 
-			console.log("get search results ajax called");
+		safe_url = encodeURI(url);
+		$.getJSON(safe_url, function() { 
+			//console.log("get search results ajax called");
 		})
 		.success(function(_data, status, xhr) {
-			console.log("success");
-	        console.log(_data);
+			//console.log("success");
+	        //console.log(_data);
 			data = _data;
-			showResults();
+			if((data.response.minivenues && (data.response.minivenues.length > 0)) || fallback == true) {
+				//if we have results OR this is the 2nd attempt, show results
+				showResults();
+			} else {
+				//if nothing found in local radius, switch intent to global and re-call foursquare
+				opts.intent = 'global';
+				fallback = true;   //set global so we dont end up in infinite fail loop
+				callFoursquareSuggestion();
+			}
 	    })
 		.error(function() {
 	        //TODO show some kind of error message
@@ -164,16 +177,16 @@
 	
 	function buildResultsList() {
 		minivenues = data.response.minivenues;
-
+		
 		if(minivenues && minivenues.length > 0) {
 			results = "";
 			for (var i = 0; i < minivenues.length; i++) {
 				v = minivenues[i]
 				//TODO this should be customizable, at least for urls
-				results += "<li><a href='/places/" + v.id + "'>" + v.name + "</a></li>";
+				results += "<li class='venue'><a name='" + escape(v.name) + "' data-city='" + v.location.city +"' data-state='" + v.location.state +"' data-address='" + v.location.address +"' data-zip='" + v.location.postalCode +"' data-country='" + v.location.country + "' data-lat='" + v.location.lat +"' data-lng='" + v.location.lng +"' data-id='" + v.id +"'>" + v.name + "</a>- <span class='loc'>"+ v.location.city +", "+ v.location.state +"</span></li>";
 			}
 		} else {
-			results = "<ul><li>no results</li></ul>";
+			results = "<ul><li>Couldn't find that venue.</li></ul>";
 		}
 		
 		return results;
@@ -201,14 +214,14 @@
 	}
 	
 	function downArrowPressed() {
-		console.log( "down pressed" );	
+		//console.log( "down pressed" );	
 		if(resultsListActive) {
-			console.log("active");
+			//console.log("active");
 			//if active and last item in list
 			if(resultsListIndex == liLength - 1) {
 				//do nothing or return to top?
 				//return to top
-				console.log("reached the end");
+				//console.log("reached the end");
 				setSelected(0);
 			} else {
 				//console.log("down arrow " + (resultsListSelectedIndex + 1));
@@ -217,7 +230,7 @@
 			}
 			
 		} else {
-			console.log("not active, activate");
+			//console.log("not active, activate");
 			//activate the list
 			resultsListActive = true;
 			setSelected(0);
@@ -225,7 +238,7 @@
 	}
 	
 	function upArrowPressed() {
-		console.log( "up pressed" );
+		//console.log( "up pressed" );
 		
 		if(resultsListActive) {
 			//get selected index
@@ -246,7 +259,7 @@
 	}
 	
 	function setSelected(index) {
-		console.log("set selected: " + index);
+		//console.log("set selected: " + index);
 		resultsListSelectedIndex = index;
 		$("#" + resultsList.attr("id") + " li").removeClass("selected");
 		$("#" + resultsList.attr("id") + " li").eq(index).addClass("selected");
